@@ -1,0 +1,48 @@
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-1
+  namespace: step-2
+  labels:
+    demo/project: com.gft.techoffice.techsnacks-20211104
+    demo/app: step-2
+    demo/module: client-1
+    active: "yes"
+spec:
+  containers:
+    - name: client
+      image: com.gft.techoffice.techsnacks-20211104.client:wrapped
+      imagePullPolicy: Never
+      args: [ "--type", "thermometer", "--address", "01:00", "--randomsvc", "/opt/client" ]
+      env:
+        - name: TOPIC
+          value: topic-a
+        - name: MODULE
+          value: client-1
+      resources:
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+  hostIPC: true
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-1
+  namespace: step-2
+spec:
+  type: NodePort
+  selector:
+    demo/project: com.gft.techoffice.techsnacks-20211104
+    demo/app: step-2
+    demo/module: client-1
+    active: "yes"
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30080

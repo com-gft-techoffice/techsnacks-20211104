@@ -1,0 +1,13 @@
+FROM com.gft.techoffice.techsnacks-20211104.client:build
+
+ARG GITHASH
+ARG TIMESTAMP
+ARG COMPONENT
+
+COPY docker/client/sleep.sh /opt/sleep.sh
+RUN chown "${COMPONENT}:${COMPONENT}" /opt/sleep.sh && \
+    chmod og-rwx,u=rx /opt/sleep.sh
+
+USER ${COMPONENT}
+
+CMD [ "/opt/sleep.sh" ]

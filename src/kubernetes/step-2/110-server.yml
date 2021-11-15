@@ -1,0 +1,44 @@
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: random-2
+  namespace: step-2
+  labels:
+    demo/project: com.gft.techoffice.techsnacks-20211104
+    demo/app: step-2
+    demo/module: random-2
+    active: "yes"
+    demo/ipctype: server
+    demo/ipctopic: topic-a
+spec:
+  containers:
+    - name: server
+      image: com.gft.techoffice.techsnacks-20211104.server:no-daemon
+      imagePullPolicy: Never
+      env:
+        - name: TOPIC
+          value: topic-a
+        - name: MODULE
+          value: server-2
+      resources:
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+  hostIPC: true
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: demo/ipctopic
+            operator: In
+            values:
+            - topic-a
+          - key: demo/ipctype
+            operator: In
+            values:
+            - server
+        topologyKey: kubernetes.io/hostname
+        namespaces: []

@@ -1,0 +1,16 @@
+FROM com.gft.techoffice.techsnacks-20211104.server:build
+
+ARG GITHASH
+ARG TIMESTAMP
+ARG COMPONENT
+
+COPY docker/server/run.sh /opt/run.sh
+RUN adduser --no-create-home --disabled-password --disabled-login --gecos "Application user" "${COMPONENT}"
+RUN mkdir "/var/log/${COMPONENT}"
+RUN chown "${COMPONENT}:${COMPONENT}" "/opt/server" "/opt/client" "/var/log/${COMPONENT}" /var/run/ /opt/run.sh && \
+    chmod og-rwx,u=rx /opt/server /opt/client /opt/run.sh && \
+    chmod ug=rwx,o=rx "/var/log/${COMPONENT}" /var/run/
+
+USER ${COMPONENT}
+
+ENTRYPOINT [ "/opt/run.sh" ]

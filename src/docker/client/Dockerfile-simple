@@ -1,0 +1,9 @@
+FROM com.gft.techoffice.techsnacks-20211104.client:build
+
+ARG GITHASH
+ARG TIMESTAMP
+ARG COMPONENT
+
+USER ${COMPONENT}
+
+ENTRYPOINT [ "/opt/client" ] 

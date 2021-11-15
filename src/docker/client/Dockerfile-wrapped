@@ -1,0 +1,37 @@
+# ----------------------------------------------------------------------------
+
+FROM golang:alpine AS WRAPPERIMAGE
+
+ARG GITHASH
+ARG TIMESTAMP
+ARG WRAPPER
+
+RUN apk add build-base gcc abuild binutils make argp-standalone linux-headers git
+RUN mkdir /tmp/build
+
+COPY go /tmp/build/src
+
+WORKDIR /tmp/build/src
+RUN make distclean
+WORKDIR /tmp/build/src/${WRAPPER}
+RUN GITHASH=${GITHASH} TIMESTAMP=${TIMESTAMP} make dep
+RUN GITHASH=${GITHASH} TIMESTAMP=${TIMESTAMP} make all
+
+WORKDIR /tmp/build
+
+# ----------------------------------------------------------------------------
+
+FROM com.gft.techoffice.techsnacks-20211104.client:build
+
+ARG GITHASH
+ARG TIMESTAMP
+ARG COMPONENT
+ARG WRAPPER
+
+COPY --from=WRAPPERIMAGE /tmp/build/src/dist/bin/${WRAPPER} /opt/${WRAPPER}
+RUN chown "${COMPONENT}:${COMPONENT}" "/opt/${WRAPPER}" && \
+    chmod og-rwx,u=rx "/opt/${WRAPPER}" 
+
+USER ${COMPONENT}
+
+ENTRYPOINT [ "/opt/ms-measure" ] 

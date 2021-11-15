@@ -1,0 +1,47 @@
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: random-1
+  namespace: step-3
+  labels:
+    demo/project: com.gft.techoffice.techsnacks-20211104
+    demo/app: step-3
+    demo/module: random-1
+    active: "yes"
+    demo/ipctype: server
+    demo/ipctopic: topic-a
+spec:
+  volumes:
+  - name: server-logdir
+    emptyDir: {}
+  containers:
+    - name: server
+      image: com.gft.techoffice.techsnacks-20211104.server:no-daemon
+      imagePullPolicy: Never
+      volumeMounts:
+        - mountPath: /var/log/server
+          name: server-logdir
+      args: [ "--logfile", "/var/log/server/topic-a@server-1.log"]
+      env:
+        - name: TOPIC
+          value: topic-a
+        - name: MODULE
+          value: server-1
+      resources:
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+    - name: log
+      image: com.gft.techoffice.techsnacks-20211104.tail:latest
+      imagePullPolicy: Never
+      args: [ "/var/log/server/topic-a@server-1.log"]
+      volumeMounts:
+        - mountPath: /var/log/server
+          name: server-logdir
+      resources:
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+  hostIPC: true
